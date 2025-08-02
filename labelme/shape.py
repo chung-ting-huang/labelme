@@ -389,3 +389,25 @@ class Shape(object):
 
     def __setitem__(self, key, value):
         self.points[key] = value
+
+    def rotate(self, angle):
+        """Rotate the shape by angle around its centroid."""
+        if not self.points:
+            return
+
+        center = self.centroid()
+
+        # 建立一個 QTransform 對象
+        transform = QtGui.QTransform()
+        # 將原點移到中心點
+        transform.translate(center.x(), center.y())
+        # 圍繞中心點旋轉
+        transform.rotate(angle)
+        # 將原點移回
+        transform.translate(-center.x(), -center.y())
+
+        # 對所有點套用變換
+        new_points = []
+        for p in self.points:
+            new_points.append(transform.map(p))
+        self.points = new_points

@@ -856,6 +856,18 @@ class Canvas(QtWidgets.QWidget):
             # with Ctrl/Command key
             # zoom
             self.zoomRequest.emit(delta.y(), ev.pos())
+        # Shift 滾輪 → 旋轉已選取圖形
+        elif QtCore.Qt.ShiftModifier == int(mods):  # type: ignore[attr-defined]
+            if self.selectedShapes:  # 確保有選取形狀
+                self.storeShapes()  # 儲存狀態以支援 undo
+                steps = delta.y() // 120  # 一格滾輪為 ±120
+                for shape in self.selectedShapes:
+                    if shape.shape_type == "rectangle":
+                        shape.shape_type = "polygon"
+                    shape.rotate(steps * MOVE_SPEED)
+                self.repaint()
+                self.shapeMoved.emit()
+        # 其他情況 → 捲動畫面
         else:
             # scroll
             self.scrollRequest.emit(delta.x(), QtCore.Qt.Horizontal)  # type: ignore[attr-defined]
